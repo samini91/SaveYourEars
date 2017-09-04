@@ -51,14 +51,21 @@ class VolumeService : Service() {
         val audioService = getSystemService(AUDIO_SERVICE) as AudioManager
         val minVol = optionModel?.minVolVal
         val maxVol = audioService.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        val timerValue = optionModel?.timerVal
+
+        optionModel?.toggleState(intent?.getStringExtra(stateMap))
+
+        val timerValue =
+                if(optionModel?.stateVal == heatingUp)
+                    optionModel?.heatingUpTimerVal
+                else
+                    optionModel?.coolingDownTimerVal
+
         val startTime = System.currentTimeMillis()
 
         var delta = maxVol - minVol!!
 
         val interval = if(delta !=0) {(timerValue!!.toLong() *1000) / delta} else { 0 }
 
-        optionModel?.toggleState()
 
         sendBroadCastToActivity()
         updateWidget()

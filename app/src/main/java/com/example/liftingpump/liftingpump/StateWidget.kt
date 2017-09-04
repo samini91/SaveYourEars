@@ -75,8 +75,6 @@ class StateWidget : AppWidgetProvider() {
             appWidgetManager.updateAppWidget(widgetId, remoteViews)
         }
 
-
-
     }
 
 

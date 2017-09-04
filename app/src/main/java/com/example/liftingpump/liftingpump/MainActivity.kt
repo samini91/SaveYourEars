@@ -15,125 +15,108 @@ import android.widget.Toast
 
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() , IMainActivityView{
 
-    val mainActivity = this
-    var optionModel : OptionModel? = null
-    var stateBroadCastReciever : BroadcastReceiver? = null
-    var state : String? = null
-
+    var mainActivityViewPresenter : MainActivityViewPresenter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        optionModel = OptionModel(getSharedPreferences(OptionModel.default, Context.MODE_PRIVATE))
+        mainActivityViewPresenter = MainActivityViewPresenter(this,this)
 
-        timerValueEditText.setText(optionModel?.timerVal.toString())
+        mainActivityViewPresenter?.setUpDefaults()
 
-        minVolBar.progress = optionModel?.minVolVal!!
-        maxVolBar.progress = optionModel?.maxVolVal!!
-
-
-        button.setOnClickListener { view ->
-            onTimerStart()
-        }
-
+        setUpButtons()
         setUpOptions()
-        setUpStateBroadCastReceiver()
 
+        mainActivityViewPresenter?.setUpStateBroadCastReceiver()
+    }
+
+    private fun setUpButtons(){
+        coolingDownButton.setOnClickListener { view ->
+            mainActivityViewPresenter?.coolingDown()
+        }
+        heatingUpButton.setOnClickListener{ view ->
+            mainActivityViewPresenter?.heatingUp()
+        }
     }
 
     private fun setUpOptions(){
 
-        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-        timerValueEditText.setOnEditorActionListener { textView, i, keyEvent ->
+        coolingDownTimerValue.setOnEditorActionListener { textView, i, keyEvent ->
             if(i == EditorInfo.IME_ACTION_DONE) {
                 //if(timerValueEditText.text.contains) we can do a check here to make sure we are only getting letters
-                if(timerValueEditText.text.isNotEmpty())
-                    onTimerValueChange(Integer.parseInt(timerValueEditText.text.toString()))
+                if(coolingDownTimerValue.text.isNotEmpty())
+                    mainActivityViewPresenter?.setCoolingDownTimer(Integer.parseInt(coolingDownTimerValue.text.toString()))
             }
             false
         }
 
-        minVolBar.max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        heatingUpTimerValue.setOnEditorActionListener { textView, i, keyEvent ->
+            if(i == EditorInfo.IME_ACTION_DONE) {
+                //if(timerValueEditText.text.contains) we can do a check here to make sure we are only getting letters
+                if(heatingUpTimerValue.text.isNotEmpty())
+                    mainActivityViewPresenter?.setHeatingUpTimerVal(Integer.parseInt(heatingUpTimerValue.text.toString()))
+            }
+            false
+        }
 
         minVolBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             var currentVol = 0
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {}
             override fun onStartTrackingTouch(seekBar: SeekBar?) {currentVol = minVolBar.progress}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                if(!onMinVolumeChange(seekBar?.progress))
-                    minVolBar.progress = currentVol
+                mainActivityViewPresenter?.setMinVolume(currentVol,seekBar?.progress)
             }
         })
 
-
-    maxVolBar.max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-
-    maxVolBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
-        var currentVol = 0
-        override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {}
-        override fun onStartTrackingTouch(seekBar : SeekBar?) { currentVol = maxVolBar.progress}
-        override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            if(!onMaxVolumeChange(seekBar?.progress))
-                maxVolBar.progress = currentVol
-        }
-    })
-
-    }
-
-    private fun setUpStateBroadCastReceiver(){
-
-        stateBroadCastReciever = object : BroadcastReceiver(){
-            override fun onReceive(context: Context?, intent: Intent?) {
-                onStateWasChanged(intent)
+        maxVolBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+            var currentVol = 0
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {}
+            override fun onStartTrackingTouch(seekBar : SeekBar?) { currentVol = maxVolBar.progress}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                mainActivityViewPresenter?.setMaxVolume(currentVol,seekBar?.progress)
             }
+        })
+
+    }
+
+    // Interface Functions
+
+    override fun toggleState(state : String?)  {
+        if(state == VolumeService.coolingDown){
+            coolingDownButton.isEnabled = false
+            heatingUpButton.isEnabled = true
         }
-        LocalBroadcastManager.getInstance(this).registerReceiver(stateBroadCastReciever,
-                IntentFilter(VolumeService.ACTION_CURRENT_STATE));
-    }
-
-
-    // Controller Functions
-
-    fun onStateWasChanged(intent: Intent?){
-        state = intent?.getStringExtra(VolumeService.stateMap)
-    }
-
-    fun onTimerStart() {
-
-        mainActivity.startService(Intent(this, VolumeService::class.java))
-
-    }
-    fun onTimerValueChange(timerValue : Int?){
-        if(timerValue !=null)
-            optionModel?.timerVal = timerValue
-        else
-            optionModel?.timerVal = 30
-    }
-
-    fun onMinVolumeChange(minVolume : Int?) : Boolean{
-        if (minVolume != null && minVolume > optionModel?.maxVolVal!!){
-            return false
+        else{
+            coolingDownButton.isEnabled = true
+            heatingUpButton.isEnabled = false
         }
-        if(minVolume !=null)
-            optionModel?.minVolVal = minVolume
-        else
-            optionModel?.minVolVal = 5
-        return true
     }
 
-    fun onMaxVolumeChange(maxVolume : Int?) : Boolean{
-        if (maxVolume != null && maxVolume < optionModel?.minVolVal!!){
-            return false
-        }
-                if(maxVolume !=null)
-                    optionModel?.maxVolVal = maxVolume
-                else
-                    optionModel?.maxVolVal = 5
-        return true
+    override fun setCoolingDownTimer(coolingDownTimer: Int) {
+        coolingDownTimerValue.setText(Integer.toString(coolingDownTimer))
+    }
+
+    override fun setHeatingUpTimer(heatingUpTimer: Int) {
+        heatingUpTimerValue.setText(Integer.toString(heatingUpTimer))
+    }
+
+    override fun configureMinVolProgress(configureVal: Int) {
+        minVolBar.max = configureVal
+    }
+
+    override fun configureMaxVolProgress(configureVal: Int) {
+        maxVolBar.max = configureVal
+    }
+
+    override fun setMinVolProgress(minVolProgress: Int) {
+        minVolBar.progress = minVolProgress
+    }
+
+    override fun setMaxVolProgress(maxVolProgress: Int) {
+        maxVolBar.progress = maxVolProgress
     }
 }
 
