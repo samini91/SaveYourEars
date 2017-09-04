@@ -15,15 +15,15 @@ import android.view.KeyEvent
 import android.view.KeyEvent.KEYCODE_MEDIA_PLAY
 import android.support.v4.content.ContextCompat.startActivity
 import android.provider.AlarmClock
-
-
-
+import android.support.v4.media.session.MediaButtonReceiver
 
 
 /**
  * Created by Mugen on 9/1/2017.
  */
 class OnEventReceiver : BroadcastReceiver() {
+
+
 
     override fun onReceive(context: Context?, intent: Intent?) {
 
@@ -39,7 +39,7 @@ class OnEventReceiver : BroadcastReceiver() {
             val mAudioManager = context?.getSystemService(AUDIO_SERVICE) as AudioManager
 
             Log.i("Media Player is playing",mAudioManager.isMusicActive.toString())
-            Log.i("Is order broadcast",isOrderedBroadcast.toString())
+        Log.i("Is order broadcast",isOrderedBroadcast.toString())
 
             val event = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY)
             mAudioManager.dispatchMediaKeyEvent(event)

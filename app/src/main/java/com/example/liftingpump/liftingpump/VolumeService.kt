@@ -1,6 +1,7 @@
 package com.example.liftingpump.liftingpump
 
 import android.app.Service
+import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
@@ -8,6 +9,11 @@ import android.media.AudioManager
 import android.os.Handler
 import android.os.IBinder
 import android.support.v4.content.LocalBroadcastManager
+import android.widget.Toast
+import android.content.ComponentName
+import android.widget.RemoteViews
+
+
 
 class VolumeService : Service() {
 
@@ -19,7 +25,6 @@ class VolumeService : Service() {
 
         val validStates = arrayOf(heatingUp, coolingDown)
     }
-    var state : String? = null
 
     val timerHandler = Handler()
     var timerRunnable : Runnable? = null
@@ -39,7 +44,7 @@ class VolumeService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        optionModel = OptionModel(getSharedPreferences("default", Context.MODE_PRIVATE))!!
+        optionModel = OptionModel(getSharedPreferences(OptionModel.default, Context.MODE_PRIVATE))!!
         //val mediaBrowserServiceCompat = MediaBrowserServiceCompat
         timerHandler.removeCallbacks(timerRunnable)
 
@@ -53,9 +58,10 @@ class VolumeService : Service() {
 
         val interval = if(delta !=0) {(timerValue!!.toLong() *1000) / delta} else { 0 }
 
-        sendBroadCast()
-
         optionModel?.toggleState()
+
+        sendBroadCastToActivity()
+        updateWidget()
 
         timerRunnable = object : Runnable {
 
@@ -67,8 +73,7 @@ class VolumeService : Service() {
                 val minutes = seconds / 60
                 seconds %= 60
 
-
-                if(state == heatingUp)
+                if(optionModel?.stateVal == heatingUp)
                     audioService.setStreamVolume(AudioManager.STREAM_MUSIC, audioVolume + 1, 0)
                 else
                     audioService.setStreamVolume(AudioManager.STREAM_MUSIC, audioVolume - 1, 0)
@@ -101,11 +106,30 @@ class VolumeService : Service() {
         optionModel?.stateVal = heatingUp
     }
 
-    fun sendBroadCast(){
+    fun sendBroadCastToActivity(){
         val intent = Intent(ACTION_CURRENT_STATE)
         intent.putExtra(stateMap,optionModel?.stateVal)
 
         LocalBroadcastManager.getInstance(application).sendBroadcast(intent)
+        Toast.makeText(this,optionModel?.stateVal,Toast.LENGTH_SHORT).show()
+    }
+
+    fun updateWidget(){
+
+//        val remoteView = RemoteViews(packageName, R.layout.state_widget)
+        val stateWidget = ComponentName(this, StateWidget::class.java!!)
+        val appWidgetManager = AppWidgetManager.getInstance(this)
+        //appWidgetManager.updateAppWidget(stateWidget, remoteView)
+
+        val intent = Intent(this, StateWidget::class.java)
+        intent.action = "android.appwidget.action.APPWIDGET_UPDATE"
+
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(stateWidget)
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+        intent.putExtra(StateWidget.sendingProcessType,StateWidget.doNotRunService)
+        sendBroadcast(intent)
+
+
     }
 }
 

@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="#55000000"
+              android:weightSum="1"
+    >
+
+    <ImageButton
+        android:id="@+id/coolingDown"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight=".5"
+        android:src="@drawable/ice"
+        />
+
+    <ImageButton
+        android:id="@+id/heatingUp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight=".5"
+        android:src="@drawable/campfire"
+        />
+</LinearLayout>

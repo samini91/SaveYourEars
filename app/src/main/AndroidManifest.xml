@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -22,21 +21,46 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".VolumeService" ></service>
+        <receiver
+            android:name="android.support.v4.media.session.MediaButtonReceiver"
+            android:enabled="true"
+            >
+            <intent-filter android:priority="2147483647">
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+                <!--<action android:name="android.bluetooth.a2dp.profile.action.PLAYING_STATE_CHANGED" />-->
+            </intent-filter>
+        </receiver>
+
 
         <receiver
             android:name=".OnEventReceiver"
             android:enabled="true"
             >
-            <!--android:exported="false"-->
-            <intent-filter
-                android:priority="999999999">
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-                <action android:name="android.intent.action.ACTION_MEDIA_BUTTON" />
-                <!--<action android:name="android.bluetooth.a2dp.profile.action.PLAYING_STATE_CHANGED" />-->
+            <intent-filter android:priority="2147483647">
+                <!--<action android:name="class com.example.liftingpump.liftingpump.VolumeServiceBroadCast" />-->
+                <action android:name="swag" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
         </receiver>
+
+
+        <receiver android:name=".StateWidget" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                       android:resource="@xml/state_widget_info" />
+        </receiver>
+
+        <service android:name="com.example.liftingpump.liftingpump.VolumeService"
+                 android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+
+
 
     </application>
     </manifest>
