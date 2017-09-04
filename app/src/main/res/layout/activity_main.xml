@@ -11,55 +11,72 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight=".6"
+        android:layout_height="0dp"
+        android:layout_weight=".7"
         android:orientation="horizontal"
         >
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight=".5"
             android:orientation="vertical"
+            android:weightSum="1"
             >
 
             <ImageButton
                 android:id="@+id/coolingDownButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ice"/>
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight=".9"
+                android:src="@drawable/ice"
+                />
 
             <EditText
                 android:id="@+id/coolingDownTimerValue"
                 android:layout_width="79dp"
                 android:layout_height="47dp"
+                android:layout_gravity="center"
+                android:layout_weight=".1"
                 android:inputType="number"
-                android:textAlignment="center"/>
+                android:textAlignment="center"
+                />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight=".5"
             android:orientation="vertical"
+            android:weightSum="1"
             >
 
             <ImageButton
                 android:id="@+id/heatingUpButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/campfire"/>
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight=".9"
+                android:src="@drawable/campfire"
+                />
 
             <EditText
                 android:id="@+id/heatingUpTimerValue"
                 android:layout_width="79dp"
                 android:layout_height="47dp"
+                android:layout_gravity="center"
+                android:layout_weight=".1"
                 android:inputType="number"
-                android:textAlignment="center"/>
+                android:textAlignment="center"
+                />
 
         </LinearLayout>
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".1"
+        />
 
 
     <LinearLayout
@@ -67,20 +84,40 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight=".2"
         android:orientation="vertical"
-        android:layout_weight=".4"
+        android:weightSum="10"
         >
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Min Volume"
+            />
 
         <SeekBar
             android:id="@+id/minVolBar"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="4"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Max Volume"
             />
 
         <SeekBar
             android:id="@+id/maxVolBar"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="4"
             />
 
     </LinearLayout>
