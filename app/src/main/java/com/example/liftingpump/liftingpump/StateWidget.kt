@@ -27,8 +27,6 @@ class StateWidget : AppWidgetProvider() {
 
         if(intent?.getStringExtra(sendingProcessType) == doNotRunService){
 
-            Log.i("Widget", "Updating from Service")
-
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val stateWidget = ComponentName(context, StateWidget::class.java!!)
             val appWidgetIds = appWidgetManager.getAppWidgetIds(stateWidget)
@@ -36,7 +34,6 @@ class StateWidget : AppWidgetProvider() {
             updateWidget(context!!,appWidgetManager ,appWidgetIds,false)
         }
         else {
-            Log.i("Widget", "Updating from broadcast")
             super.onReceive(context, intent)
         }
     }
@@ -77,7 +74,6 @@ class StateWidget : AppWidgetProvider() {
 
     }
 
-
     private fun setCoolingDown(context: Context, appWidgetIds: IntArray, remoteViews:RemoteViews){
         val intent = Intent(context, StateWidget::class.java)
         intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
@@ -105,5 +101,4 @@ class StateWidget : AppWidgetProvider() {
         remoteViews.setOnClickPendingIntent(R.id.heatingUp, pendingIntent)
 
     }
-
 }
