@@ -34,7 +34,6 @@ class OptionModel(private val sharedPreferences: SharedPreferences){
         get() = sharedPreferences.getString(stateMap, VolumeService.coolingDown)
         set(value) {sharedPreferences.edit().putString(stateMap, value).commit()}
 
-
     fun toggleState(changeState : String? = null ){
         if(changeState == null) {
             stateVal = if (stateVal == VolumeService.heatingUp)

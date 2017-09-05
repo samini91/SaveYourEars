@@ -2,7 +2,6 @@ package com.example.liftingpump.liftingpump
 
 interface IMainActivityView{
 
-
     fun toggleState(state:String?)
 
     fun setCoolingDownTimer(coolingDownTimer: Int)
@@ -13,7 +12,5 @@ interface IMainActivityView{
 
     fun configureMinVolProgress(configureVal: Int)
     fun configureMaxVolProgress(configureVal: Int)
-
-
 
 }

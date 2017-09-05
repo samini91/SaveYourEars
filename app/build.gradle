@@ -9,8 +9,8 @@ android {
     buildToolsVersion "26.0.0"
     defaultConfig {
         applicationId "com.example.liftingpump.liftingpump"
-        minSdkVersion 23
-        targetSdkVersion 26
+        minSdkVersion 22
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

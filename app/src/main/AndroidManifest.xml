@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
           package="com.example.liftingpump.liftingpump">
-    <uses-permission android:name="android.permission.BLUETOOTH" />
+
+    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -21,29 +19,6 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name="android.support.v4.media.session.MediaButtonReceiver"
-            android:enabled="true"
-            >
-            <intent-filter android:priority="2147483647">
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-                <!--<action android:name="android.bluetooth.a2dp.profile.action.PLAYING_STATE_CHANGED" />-->
-            </intent-filter>
-        </receiver>
-
-
-        <receiver
-            android:name=".OnEventReceiver"
-            android:enabled="true"
-            >
-            <intent-filter android:priority="2147483647">
-                <!--<action android:name="class com.example.liftingpump.liftingpump.VolumeServiceBroadCast" />-->
-                <action android:name="swag" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </receiver>
-
-
         <receiver android:name=".StateWidget" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -56,6 +31,7 @@
                  android:exported="true"
             >
             <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>

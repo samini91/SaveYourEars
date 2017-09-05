@@ -41,6 +41,8 @@ class MainActivityViewPresenter (context: Context,iMainActivityView: IMainActivi
 
         val audioManager = context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
+        iMainActivityView?.toggleState(optionModel.stateVal)
+
         iMainActivityView?.setCoolingDownTimer(optionModel.coolingDownTimerVal)
         iMainActivityView?.setHeatingUpTimer(optionModel.heatingUpTimerVal)
 
@@ -56,7 +58,6 @@ class MainActivityViewPresenter (context: Context,iMainActivityView: IMainActivi
         if(coolDownTimerVal !=null)
             optionModel.coolingDownTimerVal = coolDownTimerVal
     }
-
 
     fun setHeatingUpTimerVal(heatingUpTimerVal: Int?){
         if(heatingUpTimerVal !=null)
@@ -85,7 +86,6 @@ class MainActivityViewPresenter (context: Context,iMainActivityView: IMainActivi
             optionModel.maxVolVal = after
     }
 
-
     fun setUpStateBroadCastReceiver(){
 
         stateBroadCastReceiver = object : BroadcastReceiver(){
@@ -94,6 +94,6 @@ class MainActivityViewPresenter (context: Context,iMainActivityView: IMainActivi
             }
         }
         LocalBroadcastManager.getInstance(context).registerReceiver(stateBroadCastReceiver,
-                IntentFilter(VolumeService.ACTION_CURRENT_STATE));
+                IntentFilter(VolumeService.ACTION_CURRENT_STATE))
     }
 }

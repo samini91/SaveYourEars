@@ -1,17 +1,9 @@
 package com.example.liftingpump.liftingpump
 
-import android.content.BroadcastReceiver
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.content.Context
-import android.media.AudioManager
-import android.content.Intent
-import android.content.IntentFilter
-import android.support.v4.content.LocalBroadcastManager
 import android.view.inputmethod.EditorInfo
 import android.widget.SeekBar
-import android.widget.Toast
-
 
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -31,6 +23,7 @@ class MainActivity : AppCompatActivity() , IMainActivityView{
         setUpOptions()
 
         mainActivityViewPresenter?.setUpStateBroadCastReceiver()
+
     }
 
     private fun setUpButtons(){
@@ -46,8 +39,10 @@ class MainActivity : AppCompatActivity() , IMainActivityView{
 
         coolingDownTimerValue.setOnEditorActionListener { textView, i, keyEvent ->
             if(i == EditorInfo.IME_ACTION_DONE) {
-                //if(timerValueEditText.text.contains) we can do a check here to make sure we are only getting letters
-                if(coolingDownTimerValue.text.isNotEmpty())
+                // Doing an extra check here just in case (already forcing the text input to be nums only)
+                var numsOnly = true
+                coolingDownTimerValue.text.forEach { c -> if (c > '9' || c < '0') numsOnly = false }
+                if (numsOnly && coolingDownTimerValue.text.isNotEmpty())
                     mainActivityViewPresenter?.setCoolingDownTimer(Integer.parseInt(coolingDownTimerValue.text.toString()))
             }
             false
@@ -55,8 +50,10 @@ class MainActivity : AppCompatActivity() , IMainActivityView{
 
         heatingUpTimerValue.setOnEditorActionListener { textView, i, keyEvent ->
             if(i == EditorInfo.IME_ACTION_DONE) {
-                //if(timerValueEditText.text.contains) we can do a check here to make sure we are only getting letters
-                if(heatingUpTimerValue.text.isNotEmpty())
+                // Doing an extra check here just in case (already forcing the text input to be nums only)
+                var numsOnly = true
+                heatingUpTimerValue.text.forEach { c -> if (c > '9' || c < '0') numsOnly = false }
+                if (numsOnly && heatingUpTimerValue.text.isNotEmpty())
                     mainActivityViewPresenter?.setHeatingUpTimerVal(Integer.parseInt(heatingUpTimerValue.text.toString()))
             }
             false
@@ -87,11 +84,15 @@ class MainActivity : AppCompatActivity() , IMainActivityView{
     override fun toggleState(state : String?)  {
         if(state == VolumeService.coolingDown){
             coolingDownButton.isEnabled = false
+            coolingDownButton.alpha = .2f
             heatingUpButton.isEnabled = true
+            heatingUpButton.alpha = 1f
         }
         else{
             coolingDownButton.isEnabled = true
+            coolingDownButton.alpha = 1f
             heatingUpButton.isEnabled = false
+            heatingUpButton.alpha = .2f
         }
     }
 

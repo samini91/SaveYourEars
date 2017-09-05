@@ -11,14 +11,13 @@ import android.os.IBinder
 import android.support.v4.content.LocalBroadcastManager
 import android.widget.Toast
 import android.content.ComponentName
-import android.widget.RemoteViews
-
-
+import android.os.Binder
 
 class VolumeService : Service() {
 
     companion object {
         val ACTION_CURRENT_STATE = VolumeService::class.java.toString() + "BroadCast"
+
         val heatingUp = "HeatingUp"
         val coolingDown= "CoolingDown"
         val stateMap = "state"
@@ -31,21 +30,16 @@ class VolumeService : Service() {
     var optionModel : OptionModel? = null
 
     override fun onBind(p0: Intent?): IBinder {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return Binder()
     }
+
     override fun onCreate() {
         super.onCreate()
-
-        //val a = Thread(Runnable { Log.i("MyService","Post") })
-
-        //a.start()
-        // something to do when the service is created
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         optionModel = OptionModel(getSharedPreferences(OptionModel.default, Context.MODE_PRIVATE))!!
-        //val mediaBrowserServiceCompat = MediaBrowserServiceCompat
         timerHandler.removeCallbacks(timerRunnable)
 
         val audioService = getSystemService(AUDIO_SERVICE) as AudioManager
@@ -65,7 +59,6 @@ class VolumeService : Service() {
         var delta = maxVol - minVol!!
 
         val interval = if(delta !=0) {(timerValue!!.toLong() *1000) / delta} else { 0 }
-
 
         sendBroadCastToActivity()
         updateWidget()
@@ -90,27 +83,23 @@ class VolumeService : Service() {
                     timerHandler.removeCallbacks(this)
                     return
                 }
-
                 timerHandler.postDelayed(this, interval)
             }
         }
-
         if(interval != 0.toLong())
             timerHandler.postDelayed(timerRunnable, interval)
 
-        return super.onStartCommand(intent, flags, startId)
+        super.onStartCommand(intent, flags, startId)
+        return START_NOT_STICKY
     }
-
 
     override fun bindService(service: Intent?, conn: ServiceConnection?, flags: Int): Boolean {
         return super.bindService(service, conn, flags)
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         timerHandler.removeCallbacks(timerRunnable)
-        optionModel?.stateVal = heatingUp
     }
 
     fun sendBroadCastToActivity(){
@@ -123,10 +112,8 @@ class VolumeService : Service() {
 
     fun updateWidget(){
 
-//        val remoteView = RemoteViews(packageName, R.layout.state_widget)
         val stateWidget = ComponentName(this, StateWidget::class.java!!)
         val appWidgetManager = AppWidgetManager.getInstance(this)
-        //appWidgetManager.updateAppWidget(stateWidget, remoteView)
 
         val intent = Intent(this, StateWidget::class.java)
         intent.action = "android.appwidget.action.APPWIDGET_UPDATE"
@@ -135,7 +122,6 @@ class VolumeService : Service() {
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
         intent.putExtra(StateWidget.sendingProcessType,StateWidget.doNotRunService)
         sendBroadcast(intent)
-
 
     }
 }
