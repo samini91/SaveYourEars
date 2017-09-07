@@ -43,8 +43,9 @@ class VolumeService : Service() {
         timerHandler.removeCallbacks(timerRunnable)
 
         val audioService = getSystemService(AUDIO_SERVICE) as AudioManager
+        val audioVolume = audioService.getStreamVolume(AudioManager.STREAM_MUSIC)
         val minVol = optionModel?.minVolVal
-        val maxVol = audioService.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        val maxVol = optionModel?.maxVolVal
 
         optionModel?.toggleState(intent?.getStringExtra(stateMap))
 
@@ -56,9 +57,17 @@ class VolumeService : Service() {
 
         val startTime = System.currentTimeMillis()
 
-        var delta = maxVol - minVol!!
+        var delta =
+                if (optionModel?.stateVal == heatingUp)
+                    maxVol!! - audioVolume
+                else
+                    audioVolume - minVol!!
 
-        val interval = if(delta !=0) {(timerValue!!.toLong() *1000) / delta} else { 0 }
+        val interval =
+                if (delta > 0)
+                    (timerValue!!.toLong() * 1000) / delta
+                else
+                    0
 
         sendBroadCastToActivity()
         updateWidget()
@@ -68,21 +77,22 @@ class VolumeService : Service() {
             override fun run() {
 
                 val audioVolume = audioService.getStreamVolume(AudioManager.STREAM_MUSIC)
+
                 val millis = System.currentTimeMillis() - startTime
                 var seconds = (millis / 1000).toInt()
                 val minutes = seconds / 60
                 seconds %= 60
+
+                if ((audioVolume >= maxVol!! && optionModel?.stateVal == heatingUp) || (audioVolume <= minVol!! && optionModel?.stateVal == coolingDown)) {
+                    timerHandler.removeCallbacks(this)
+                    return
+                }
 
                 if(optionModel?.stateVal == heatingUp)
                     audioService.setStreamVolume(AudioManager.STREAM_MUSIC, audioVolume + 1, 0)
                 else
                     audioService.setStreamVolume(AudioManager.STREAM_MUSIC, audioVolume - 1, 0)
 
-                if(seconds >= timerValue!!
-                        || (audioVolume >= maxVol && optionModel?.stateVal == heatingUp) || (audioVolume <= minVol && optionModel?.stateVal == coolingDown)) {
-                    timerHandler.removeCallbacks(this)
-                    return
-                }
                 timerHandler.postDelayed(this, interval)
             }
         }
