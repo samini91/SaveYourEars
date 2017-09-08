@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() , IMainActivityView{
         setUpOptions()
 
         mainActivityViewPresenter?.setUpStateBroadCastReceiver()
+        mainActivityViewPresenter?.startService()
 
     }
 

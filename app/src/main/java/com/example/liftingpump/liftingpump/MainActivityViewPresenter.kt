@@ -96,4 +96,10 @@ class MainActivityViewPresenter (context: Context,iMainActivityView: IMainActivi
         LocalBroadcastManager.getInstance(context).registerReceiver(stateBroadCastReceiver,
                 IntentFilter(VolumeService.ACTION_CURRENT_STATE))
     }
+
+    fun startService() {
+        val intent = Intent(context, VolumeService::class.java)
+        intent.putExtra(VolumeService.serviceInitMap, VolumeService.startService)
+        context?.startService(intent)
+    }
 }

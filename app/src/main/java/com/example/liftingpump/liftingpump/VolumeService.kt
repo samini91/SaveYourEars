@@ -20,6 +20,8 @@ class VolumeService : Service() {
 
     companion object {
         val ACTION_CURRENT_STATE = VolumeService::class.java.toString() + "BroadCast"
+        val serviceInitMap = "serviceInitMap"
+        val startService = "startService"
 
         val heatingUp = "HeatingUp"
         val coolingDown= "CoolingDown"
@@ -32,6 +34,7 @@ class VolumeService : Service() {
     var timerRunnable : Runnable? = null
     var optionModel : OptionModel? = null
     val thisContext = this
+    var mediaSession: MediaSession? = null
 
     override fun onBind(p0: Intent?): IBinder {
         return Binder()
@@ -39,10 +42,16 @@ class VolumeService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        bindMediaButtons()
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        if (mediaSession == null && intent?.getStringExtra(serviceInitMap) == startService) {
+            bindMediaButtons()
+            return START_NOT_STICKY
+        }
+
 
         optionModel = OptionModel(getSharedPreferences(OptionModel.default, Context.MODE_PRIVATE))!!
         timerHandler.removeCallbacks(timerRunnable)
@@ -144,7 +153,7 @@ class VolumeService : Service() {
 
         val audioService = getSystemService(AUDIO_SERVICE) as AudioManager
 
-        var mediaSession = MediaSession(this, "LiftingPumpVolumeService")
+        mediaSession = MediaSession(this, "LiftingPumpVolumeService")
         mediaSession?.setCallback(object : MediaSession.Callback() {
 
             override fun onPlay() {
