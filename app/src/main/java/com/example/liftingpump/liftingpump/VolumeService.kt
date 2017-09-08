@@ -11,7 +11,10 @@ import android.os.IBinder
 import android.support.v4.content.LocalBroadcastManager
 import android.widget.Toast
 import android.content.ComponentName
+import android.media.session.MediaSession
+import android.media.session.PlaybackState
 import android.os.Binder
+import android.view.KeyEvent
 
 class VolumeService : Service() {
 
@@ -28,6 +31,7 @@ class VolumeService : Service() {
     val timerHandler = Handler()
     var timerRunnable : Runnable? = null
     var optionModel : OptionModel? = null
+    val thisContext = this
 
     override fun onBind(p0: Intent?): IBinder {
         return Binder()
@@ -35,6 +39,7 @@ class VolumeService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        bindMediaButtons()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -132,6 +137,43 @@ class VolumeService : Service() {
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
         intent.putExtra(StateWidget.sendingProcessType,StateWidget.doNotRunService)
         sendBroadcast(intent)
+
+    }
+
+    fun bindMediaButtons() {
+
+        val audioService = getSystemService(AUDIO_SERVICE) as AudioManager
+
+        var mediaSession = MediaSession(this, "LiftingPumpVolumeService")
+        mediaSession?.setCallback(object : MediaSession.Callback() {
+
+            override fun onPlay() {
+                val intent = Intent(thisContext, VolumeService::class.java)
+
+                if (!audioService.isMusicActive) {
+                    mediaSession?.isActive = false
+                    audioService.dispatchMediaKeyEvent(KeyEvent(0.toLong(), 0.toLong(), KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY, 0))
+                    audioService.dispatchMediaKeyEvent(KeyEvent(0.toLong(), 0.toLong(), KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY, 0))
+                    mediaSession?.isActive = true
+                }
+
+                startService(intent)
+                super.onPlay()
+            }
+        })
+
+        mediaSession?.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS)
+
+        mediaSession?.isActive = true
+
+        var playBackState = PlaybackState.Builder()
+                .setActions(
+                        PlaybackState.ACTION_PLAY or PlaybackState.ACTION_PLAY_PAUSE or
+                                PlaybackState.ACTION_PLAY_FROM_MEDIA_ID or PlaybackState.ACTION_PAUSE or
+                                PlaybackState.ACTION_SKIP_TO_NEXT or PlaybackState.ACTION_SKIP_TO_PREVIOUS or PlaybackState.ACTION_STOP or PlaybackState.ACTION_PLAY_FROM_SEARCH)
+                .build()
+
+        mediaSession?.setPlaybackState(playBackState)
 
     }
 }
